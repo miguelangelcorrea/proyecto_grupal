@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>POS</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- SWEETALER ALERT-->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script> -->
+    <!-- Char.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
+    <!-- JSPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+    <!-- JSPDF AUTOTABLE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.2/jspdf.plugin.autotable.js"></script>
+
+    <!-- Pagination.js CSS -->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css">
+    <!-- Pagination.js JS -->
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.min.js"></script>
+
+    <!-- Incluye el script de la biblioteca xlsx con un CDN -->
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+</head>
+
+<style>
+    body {
+        background: url(https://i.pinimg.com/564x/cb/90/7b/cb907b4aaabddf9a56c286a133bd1d0b.jpg) no-repeat center center fixed;
+        background-size: cover;
+    }
+</style>
+
+<body>
+
+    <div>
+        <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+            <a class="navbar-brand" href="/trabajadores/list">CRUD DE VENTAS</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/trabajadores/list">Trabajadores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ventas/list">Ventas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/compras/list">Compras</a>
+                    </li>
+                </ul>
+                <!-- <form class="form-inline ml-auto" id="formBuscar">
+                <input class="form-control mr-sm-2" type="text" id="inputBuscar" placeholder="Buscar">
+                <button class="btn btn-outline-light" type="button" onclick="editar()">Buscar</button>
+            </form>                      -->
+            </div>
+                
+        </nav>
+
+
+        <!-- table-dark table-white -->
+        <!-- TABLA DE VENTAS -->
+        <br>
+        <div class="container ">
+            <h1 class="text-center text-white">LISTA DE VENTAS</h1>
+            <!-- FILTRO DE BUSQUEDA -->
+            <div class="row">
+                <div class="col-md-12 p-0">
+                    <label class="text-white">BUSCAR POR:</label>
+                </div>
+            </div>
+            <div class="row">
+                <!-- FILTRO DE DESCRIPCION -->
+                <div class="col-md-6 p-0">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="txtFiltro" placeholder="INGRESE BUSQUEDA"
+                            onkeyup="if(event.keyCode==13) listar()">
+                    </div>
+                </div>
+                <!-- FILTRO POR CATEGORIA -->
+                <div class="col-md-6 p-0">
+                    <div class="form-group">
+                        <select class="form-control" id="cboFiltroCategoria" onchange="listar()">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- <br> -->
+            <div class="row">
+                <div class="codigo">
+                    <button type="button" class="btn btn-warning m-1" onclick="listar()">BUSCAR</button>
+                    <button type="button" class="btn btn-primary m-1" onclick="limpiarFiltros()">LIMPIAR</button>
+                    <button type="button" class="btn btn-info m-1" data-toggle="modal" data-target="#modalForm"
+                        onclick="limpiarForm()">NUEVO</button>
+                    <button type="button" class="btn btn-danger m-1" data-toggle="modal" data-target="#modalReporte"
+                        onclick="crearReporte()">REPORTE</button>
+                    <button type="button" class="btn btn-success m-1" onclick="generarPDF()">GENERAR PDF</button>
+                    <!-- <button type="button" class="btn btn-dark" onclick="exportToExcel()">GENERAR EXCEL</button> -->
+                </div>
+            </div>
+            <br>
+
+            <div class="row">
+                <table class="table table-dark table-hover" id="tablaventas">
+                    <thead>
+                        <tr>
+                            <td>CODIGO VENTA</td>
+                            <td>NOMBRE</td>
+                            <td>PRODUCTO</td>
+                            <td>CANTIDAD</td>
+                            <td>PRECIO</td>
+                            <td>MODO A PAGAR</td>
+                            <td>CATEGORIA</td>
+                            <td>ACCIONES</td>
+                        </tr>
+                    <tbody id="dataVentas">
+
+                    </tbody>
+                    </thead>
+                </table>
+                <div id="pagination-container"></div>
+            </div>
+        </div>
+
+
+        <!-- MODAL VENTA-->
+        <div class="modal table-success" id="modalForm">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>VENTAS FORM</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="txtCodigoventa">CODIGO VENTA</label>
+                                <input type="text" class="form-control" id="txtCodigoventa" value="0" readonly>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="txtUsuario">NOMBRE</label>
+                                <input type="text" class="form-control" id="txtUsuario">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="txtDescripcion">PRODUCTO</label>
+                                <input type="text" class="form-control" id="txtDescripcion">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="txtCantidad">CANTIDAD</label>
+                                <input type="text" class="form-control" id="txtCantidad">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="txtImporte">PRECIO</label>
+                                <input type="text" class="form-control" id="txtImporte">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="txtModoapagar">MODO A PAGAR</label>
+                                <select class="form-control" id="txtModoapagar">
+                                    <option>TARJETA</option>
+                                    <option>EFECTIVO</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cboCategoria">CATEGORIAS</label>
+                                <select class="form-control" id="cboCategoria">
+
+                                </select>
+                            </div>
+
+
+                            <!-- <div class="form-group">
+                        <label for="txtAcciones">ACCIONES</label>
+                        <input type="text" class="form-control" id="txtAcciones">
+                    </div> -->
+
+                        </form>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">CANCELAR</button>
+
+                            <button type="button" class="btn btn-success" onclick="guardar()">GUARDAR</button>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL REPORTE CATEGORIAS -->
+        <div class="modal" id="modalReporte">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4> REPORTE DE VENTAS POR CATEGORIA</h4>
+                    </div>
+                    <div class="modal-body">
+                        <canvas id="cuerpo"></canvas>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">CERRAR REPORTE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</body>
+
+</html>
+
+<script src="ventas.js" type="text/JavaScript"></script>
